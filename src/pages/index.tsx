@@ -88,10 +88,14 @@ import Testimonial5 from "../modules/testimonial/Testimonial5";
 import Contacts1 from "../modules/contacts/Contacts1";
 import Contacts2 from "../modules/contacts/Contacts2";
 import Contacts3 from "../modules/contacts/Contacts3";
+import Contacts4 from "../modules/contacts/Contacts4";
+
+import Builder from "../modules/builder/Builder";
 
 const IndexPage: React.FC<PageProps> = () => {
   return (
     <main>
+      <Builder />
       <Landing1 />
       <Landing2 />
       <Landing3 />
@@ -180,6 +184,7 @@ const IndexPage: React.FC<PageProps> = () => {
       <Contacts1 />
       <Contacts2 />
       <Contacts3 />
+      <Contacts4 />
     </main>
   );
 };
