@@ -96,6 +96,7 @@ const IndexPage: React.FC<PageProps> = () => {
   return (
     <main>
       <Builder />
+
       <Landing1 />
       <Landing2 />
       <Landing3 />

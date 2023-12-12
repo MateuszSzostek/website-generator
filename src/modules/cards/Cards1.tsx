@@ -1,10 +1,26 @@
 import React from "react";
 import Section from "../../components/Section/Section";
+import ICards from "./Cards.types";
 
-export default function Cards1() {
+export default function Cards1({
+  title,
+  description,
+  cards,
+
+  moduleWidth,
+  moduleHeight,
+  shadow,
+  rounded,
+  firstColorAccent,
+  secondColorAccent,
+  thirdColorAccent,
+}: ICards) {
   return (
     <Section>
-      <div className="py-10  sm:py-16 block lg:py-24 relative bg-opacity-50  z-40  ">
+      <div
+        style={{ minWidth: moduleWidth, minHeight: moduleHeight }}
+        className="py-10  sm:py-16 block lg:py-24 relative bg-opacity-50  z-40  "
+      >
         <div className="relative mx-auto h-full px-4 pb-20   md:pb-10 sm:max-w-xl md:max-w-full md:px-24 lg:max-w-screen-xl lg:px-8">
           <div className=" absolute -bottom-0 -left-1/4 z-0  opacity-10 ">
             <svg

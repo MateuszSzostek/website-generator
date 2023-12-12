@@ -46,7 +46,6 @@ function getSchemaType(componentType: string) {
 }
 
 function getComponentForm(componentType: string) {
-  console.log(componentType);
   switch (componentType) {
     case "blogCards":
       return ModuleFormBlogCards;
@@ -69,13 +68,14 @@ function getComponentForm(componentType: string) {
   }
 }
 
+function buildPage(formData: any) {}
+
 export default function Builder() {
   const [builderOn, setBuilderOn] = useState<boolean>(false);
   const [addModuleModal, setAddModuleModal] = useState<boolean>(false);
+  const [BuildedPage, setBuildedPage] = useState<any>(null);
 
-  const [modules, setModules] = useState<any[]>([]);
-
-  console.log(modulesList);
+  console.log("RERENDER");
 
   const {
     register,
@@ -109,91 +109,120 @@ export default function Builder() {
 
   function handleFormSubmit(formData: any) {
     console.log(formData);
+    console.log(formData?.modules);
+
+    const GeneratedComponents = formData?.modules?.map((el, idx) => {
+      const MyComponent = React.lazy(
+        () =>
+          import(
+            `../${el?.module?.schema}/${
+              el?.module?.type.charAt(0).toUpperCase() +
+              el?.module?.type.slice(1)
+            }`
+          )
+      );
+      console.log(
+        `../${el?.module?.schema}/${
+          el?.module?.type.charAt(0).toUpperCase() + el?.module?.type.slice(1)
+        }`
+      );
+      console.log(MyComponent);
+      return <MyComponent key={idx} {...el?.module} />;
+    });
+
+    setBuildedPage(GeneratedComponents);
   }
 
   useEffect(() => {
-    console.log(fields);
-  }, []);
+    console.log(BuildedPage);
+  }, [BuildedPage]);
 
   return (
-    <div className="builder__container flex justify-center">
-      <div
-        className={`builder-app__container absolute w-full h-full bg-sky-200 transition p-8 flex flex-col justify-center ${
-          builderOn === true ? "on" : ""
-        }`}
-      >
-        <form
-          className="flex flex-col overflow-y-scroll"
-          onSubmit={handleSubmit(handleFormSubmit)}
-          noValidate
+    <>
+      <React.Suspense fallback={<div>Loading...</div>}>
+        {BuildedPage && BuildedPage}
+      </React.Suspense>
+      <div className="builder__container flex justify-center">
+        <div
+          className={`builder-app__container absolute w-full h-full bg-white transition p-8 flex flex-col ${
+            builderOn === true ? "on" : ""
+          }`}
         >
-          {fields.map((field, index) => {
-            const ComponentForm = getComponentForm(field?.module?.schema);
-
-            return (
-              <ComponentForm
-                register={register}
-                remove={remove}
-                id={index.toString()}
-              />
-            );
-          })}
-
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 rounded h-10"
+          <form
+            className="flex flex-col overflow-y-scroll overflow-x-hidden pr-8"
+            onSubmit={handleSubmit(handleFormSubmit)}
+            noValidate
           >
-            Submit
-          </button>
-        </form>
+            {fields.map((field, index) => {
+              const ComponentForm = getComponentForm(field?.module?.schema);
 
+              return (
+                <ComponentForm
+                  key={index}
+                  register={register}
+                  remove={remove}
+                  id={index.toString()}
+                />
+              );
+            })}
+            <div className="flex flex-row items-center justify-center">
+              <button
+                onClick={handleToggleModuleSelector}
+                type="button"
+                className="bg-green-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded h-10 mr-3"
+              >
+                Add Module
+              </button>
+              <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 rounded h-10"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
         <button
-          onClick={handleToggleModuleSelector}
-          className="bg-green-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 rounded h-10"
+          className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded absolute bottom-0"
+          onClick={handleShowBuilder}
         >
-          Add Module
+          {builderOn === true ? "Hide Builder" : "Show Builder"}
         </button>
-      </div>
-      <button
-        className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded absolute bottom-0"
-        onClick={handleShowBuilder}
-      >
-        Show Builder
-      </button>
 
-      {addModuleModal === true && (
-        <div aria-hidden="true" className="overflow-y-scroll">
-          <div className="relative p-4 w-full max-w-2xl max-h-full">
-            <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-              <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                  All Avaliable Modules
-                </h3>
-              </div>
+        {addModuleModal === true && (
+          <div aria-hidden="true" className="overflow-y-scroll">
+            <div className="relative p-4 w-full max-w-2xl max-h-full">
+              <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                    All Avaliable Modules
+                  </h3>
+                </div>
 
-              <div className="p-4 md:p-5 space-y-4">
-                {modulesList.map((el) => (
-                  <ModuleInput
-                    key={el?.id}
-                    {...el}
-                    selectModule={handleSelectModule}
-                  />
-                ))}
-              </div>
+                <div className="p-4 md:p-5 space-y-4">
+                  {modulesList.map((el) => (
+                    <ModuleInput
+                      key={el?.id}
+                      {...el}
+                      selectModule={handleSelectModule}
+                    />
+                  ))}
+                </div>
 
-              <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
-                <button
-                  onClick={handleToggleModuleSelector}
-                  type="button"
-                  className="ms-3 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-                >
-                  Close
-                </button>
+                <div className="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+                  <button
+                    onClick={handleToggleModuleSelector}
+                    type="button"
+                    className="ms-3 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
