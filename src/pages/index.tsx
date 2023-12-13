@@ -96,8 +96,8 @@ const IndexPage: React.FC<PageProps> = () => {
   return (
     <main>
       <Builder />
-
-      <Landing1 />
+      {/*
+<Landing1 />
       <Landing2 />
       <Landing3 />
       <Hero1 />
@@ -186,6 +186,7 @@ const IndexPage: React.FC<PageProps> = () => {
       <Contacts2 />
       <Contacts3 />
       <Contacts4 />
+  */}
     </main>
   );
 };
